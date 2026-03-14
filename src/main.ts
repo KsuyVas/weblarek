@@ -2,85 +2,98 @@ import './scss/styles.scss';
 import { CatalogModel } from './components/Models/CatalogModel';
 import { BasketModel } from './components/Models/BasketModel';
 import { BuyerModel } from './components/Models/BuyerModel';
+import { Api } from './components/base/Api';
 import { apiProducts } from './utils/data';
+import { API_URL } from './utils/constants';
+import { IProductList } from './types'; // Импортируем интерфейс
 
 console.log('========== ПРОВЕРКА РАБОТЫ МОДЕЛЕЙ ДАННЫХ ==========');
+console.log('🌐 API_URL из constants.ts:', API_URL);
 
-// ===== ПРОВЕРКА CATALOG MODEL =====
-console.log('\n----- Тестируем CatalogModel -----');
-
+// ===== ПРОВЕРКА МОДЕЛЕЙ =====
+console.log('\n📦 Тестируем CatalogModel с тестовыми данными -----');
 const catalogModel = new CatalogModel();
-console.log('1. Сохраняем товары в каталог');
 catalogModel.setItems(apiProducts.items);
+console.log('✅ Товаров в каталоге (тестовые):', catalogModel.getItems().length);
 
-console.log('2. Получаем массив товаров из каталога:');
-console.log(catalogModel.getItems());
-
-console.log('3. Получаем первый товар по id:');
-const firstItem = catalogModel.getItems()[0];
-if (firstItem) {
-  const foundItem = catalogModel.getItem(firstItem.id);
-  console.log('Найденный товар:', foundItem);
-}
-
-console.log('4. Сохраняем выбранный товар для просмотра:');
-catalogModel.setSelectedItem(firstItem);
-console.log('Выбранный товар:', catalogModel.getSelectedItem());
-
-// ===== ПРОВЕРКА BASKET MODEL =====
-console.log('\n----- Тестируем BasketModel -----');
-
+console.log('\n🛒 Тестируем BasketModel -----');
 const basketModel = new BasketModel();
-console.log('1. Корзина пуста. Товаров в корзине:', basketModel.getCount());
+if (apiProducts.items.length > 0) {
+    basketModel.addItem(apiProducts.items[0]);
+    console.log('✅ Добавлен товар в корзину');
+}
+console.log('✅ Товаров в корзине:', basketModel.getCount());
+console.log('💰 Общая стоимость:', basketModel.getTotalPrice());
 
-console.log('2. Добавляем первый товар в корзину');
-basketModel.addItem(apiProducts.items[0]);
-console.log('Товаров в корзине:', basketModel.getCount());
-console.log('Товары в корзине:', basketModel.getItems());
-
-console.log('3. Добавляем второй товар в корзину');
-basketModel.addItem(apiProducts.items[1]);
-console.log('Товаров в корзине:', basketModel.getCount());
-
-console.log('4. Общая стоимость товаров в корзине:', basketModel.getTotalPrice());
-
-console.log('5. Проверяем, есть ли первый товар в корзине:');
-const firstItemId = apiProducts.items[0].id;
-console.log('Товар с id', firstItemId, 'в корзине?', basketModel.contains(firstItemId));
-
-console.log('6. Удаляем первый товар из корзины');
-basketModel.removeItem(firstItemId);
-console.log('Товаров в корзине после удаления:', basketModel.getCount());
-
-console.log('7. Очищаем корзину');
-basketModel.clear();
-console.log('Товаров в корзине после очистки:', basketModel.getCount());
-
-// ===== ПРОВЕРКА BUYER MODEL =====
-console.log('\n----- Тестируем BuyerModel -----');
-
+console.log('\n👤 Тестируем BuyerModel -----');
 const buyerModel = new BuyerModel();
-
-console.log('1. Проверяем валидацию без данных:');
-console.log('Ошибки:', buyerModel.validate());
-
-console.log('2. Заполняем данные покупателя:');
 buyerModel.setPayment('card');
 buyerModel.setAddress('ул. Пушкина, д. 10');
 buyerModel.setEmail('test@mail.ru');
 buyerModel.setPhone('+79991234567');
+console.log('✅ Данные покупателя сохранены');
+console.log('📝 Данные:', buyerModel.getBuyerData());
+console.log('❌ Ошибки валидации:', buyerModel.validate());
 
-console.log('3. Проверяем валидацию после заполнения:');
-console.log('Ошибки:', buyerModel.validate());
-console.log('Первый шаг валиден?', buyerModel.isFirstStepValid());
-console.log('Второй шаг валиден?', buyerModel.isSecondStepValid());
+console.log('\n========== РАБОТА С СЕРВЕРОМ ==========');
 
-console.log('4. Получаем все данные покупателя:');
-console.log(buyerModel.getBuyerData());
+// Создаем экземпляр Api с URL из constants
+const apiBase = new Api(API_URL);
 
-console.log('5. Очищаем данные покупателя');
-buyerModel.clear();
-console.log('Данные после очистки:', buyerModel.getBuyerData());
-console.log('Ошибки после очистки:', buyerModel.validate());
+// Функция для получения товаров с сервера
+async function loadProductsFromServer() {
+    try {
+        console.log('\n📡 Загружаем товары с сервера...');
+        
+        // Указываем тип IProductList для ответа от сервера
+        const response = await apiBase.get<IProductList>('/product');
+        
+        console.log('✅ Ответ от сервера получен!');
+        console.log('Всего товаров на сервере:', response.total); // Теперь total существует!
+        
+        // Сохраняем товары в модель каталога
+        if (response && response.items) {
+            catalogModel.setItems(response.items);
+            console.log('\n💾 Сохраняем товары в модель каталога...');
+            console.log('✅ Сохранено', catalogModel.getItems().length, 'товаров в модель');
+            
+            // Показываем первые 3 товара для примера
+            console.log('\n📋 Первые 3 товара из каталога:');
+            catalogModel.getItems().slice(0, 3).forEach((item, index) => {
+                console.log(`${index + 1}. ${item.title} - ${item.price ? item.price + ' ₽' : 'Бесценно'}`);
+            });
+            
+            // Проверяем работу методов модели с реальными данными
+            console.log('\n🔍 Проверяем методы CatalogModel с реальными данными:');
+            
+            if (catalogModel.getItems().length > 0) {
+                // Получаем товар по id
+                const firstItem = catalogModel.getItems()[0];
+                const foundItem = catalogModel.getItem(firstItem.id);
+                console.log('✅ Поиск товара по id работает:', foundItem?.title);
+                
+                // Сохраняем выбранный товар
+                catalogModel.setSelectedItem(firstItem);
+                console.log('✅ Выбранный товар сохранен:', catalogModel.getSelectedItem()?.title);
+                
+                // Добавляем товары в корзину для примера
+                console.log('\n🛒 Добавляем товары в корзину:');
+                basketModel.clear(); // Очищаем корзину
+                basketModel.addItem(catalogModel.getItems()[0]);
+                if (catalogModel.getItems().length > 1) {
+                    basketModel.addItem(catalogModel.getItems()[1]);
+                }
+                console.log('✅ В корзине товаров:', basketModel.getCount());
+                console.log('💰 Общая стоимость:', basketModel.getTotalPrice());
+            }
+            
+            console.log('\n✨ Все тесты успешно пройдены!');
+        }
+        
+    } catch (error) {
+        console.error('❌ Ошибка при загрузке с сервера:', error);
+    }
+}
 
-console.log('\n========== ПРОВЕРКА ЗАВЕРШЕНА ==========');
+// Запускаем загрузку с сервера
+loadProductsFromServer();

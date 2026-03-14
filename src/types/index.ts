@@ -43,3 +43,26 @@ export interface IOrderResult {
   id: string;
   total: number;
 }
+
+// Интерфейс для ответа от сервера со списком товаров
+export interface IProductList {
+  items: IProduct[];
+  total: number;
+}
+
+// Интерфейс для заказа (расширяем IBuyer)
+export interface IOrder extends IBuyer {
+  items: string[]; // массив id товаров
+}
+
+// Интерфейс для ответа от сервера при оформлении заказа
+export interface IOrderResult {
+  id: string;
+  total: number;
+}
+
+// Интерфейс для ошибки от сервера
+export interface IApiError {
+  error: string;
+}
+
