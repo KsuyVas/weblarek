@@ -1,4 +1,4 @@
-import { IBuyer, TPayment, IFormErrors } from '../../types';
+import { IBuyer, TPayment, TFormErrors } from '../../types';
 
 export class BuyerModel {
   private payment: TPayment | null = null;
@@ -55,8 +55,8 @@ export class BuyerModel {
   }
 
   // валидация данных. Возвращает объект с ошибками валидации
-  validate(): IFormErrors {
-    const errors: IFormErrors = {};
+  validate(): TFormErrors {
+    const errors: TFormErrors = {};
 
     // Проверяем payment
     if (!this.payment) {

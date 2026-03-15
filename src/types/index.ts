@@ -26,17 +26,23 @@ export interface IBuyer {
 }
 
 // Интерфейс для ошибок валидации
-export interface IFormErrors {
-  payment?: string;
-  address?: string;
-  email?: string;
-  phone?: string;
-}
+//export interface IFormErrors {
+  //payment?: string;
+  //address?: string;
+  //email?: string;
+  //phone?: string;
+//}
 
-// Интерфейс для заказа
+// Тип для ошибок валидации - используем ключи из IBuyer
+export type TFormErrors = Partial<Record<keyof IBuyer, string>>;
+
+
+// Интерфейс для заказа (расширяем интерфес покупателя)
 export interface IOrder extends IBuyer {
+  total: number;
   items: string[];
 }
+
 
 // Интерфейс для ответа от сервера
 export interface IOrderResult {
@@ -50,10 +56,6 @@ export interface IProductList {
   total: number;
 }
 
-// Интерфейс для заказа (расширяем IBuyer)
-export interface IOrder extends IBuyer {
-  items: string[]; // массив id товаров
-}
 
 // Интерфейс для ответа от сервера при оформлении заказа
 export interface IOrderResult {
