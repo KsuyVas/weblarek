@@ -1,8 +1,12 @@
-export type ApiPostMethods = 'POST' | 'PUT' | 'DELETE';
+export type ApiPostMethods = "POST" | "PUT" | "DELETE";
 
 export interface IApi {
-    get<T extends object>(uri: string): Promise<T>;
-    post<T extends object>(uri: string, data: object, method?: ApiPostMethods): Promise<T>;
+  get<T extends object>(uri: string): Promise<T>;
+  post<T extends object>(
+    uri: string,
+    data: object,
+    method?: ApiPostMethods,
+  ): Promise<T>;
 }
 
 export interface IProduct {
@@ -15,7 +19,7 @@ export interface IProduct {
 }
 
 // Тип для способа оплаты
-export type TPayment = 'card' | 'cash';
+export type TPayment = "card" | "cash";
 
 // Интерфейс покупателя
 export interface IBuyer {
@@ -25,24 +29,14 @@ export interface IBuyer {
   address: string;
 }
 
-// Интерфейс для ошибок валидации
-//export interface IFormErrors {
-  //payment?: string;
-  //address?: string;
-  //email?: string;
-  //phone?: string;
-//}
-
-// Тип для ошибок валидации - используем ключи из IBuyer
+// Тип для ошибок валидации
 export type TFormErrors = Partial<Record<keyof IBuyer, string>>;
-
 
 // Интерфейс для заказа (расширяем интерфес покупателя)
 export interface IOrder extends IBuyer {
   total: number;
   items: string[];
 }
-
 
 // Интерфейс для ответа от сервера
 export interface IOrderResult {
@@ -56,7 +50,6 @@ export interface IProductList {
   total: number;
 }
 
-
 // Интерфейс для ответа от сервера при оформлении заказа
 export interface IOrderResult {
   id: string;
@@ -67,4 +60,3 @@ export interface IOrderResult {
 export interface IApiError {
   error: string;
 }
-

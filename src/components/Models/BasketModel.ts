@@ -1,4 +1,4 @@
-import { IProduct } from '../../types';
+import { IProduct } from "../../types";
 
 export class BasketModel {
   private _items: IProduct[] = [];
@@ -18,7 +18,7 @@ export class BasketModel {
 
   // удаление товара, полученного в параметре из массива корзины
   removeItem(itemId: string): void {
-    this._items = this._items.filter(item => item.id !== itemId);
+    this._items = this._items.filter((item) => item.id !== itemId);
   }
 
   // очистка корзины
@@ -41,11 +41,11 @@ export class BasketModel {
 
   // проверка наличия товара в корзине по его id
   contains(itemId: string): boolean {
-    return this._items.some(item => item.id === itemId);
+    return this._items.some((item) => item.id === itemId);
   }
 
   // получение массива id товаров в корзине
   getItemIds(): string[] {
-    return this._items.map(item => item.id);
+    return this._items.map((item) => item.id);
   }
 }

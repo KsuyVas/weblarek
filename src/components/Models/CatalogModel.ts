@@ -1,4 +1,4 @@
-import { IProduct } from '../../types';
+import { IProduct } from "../../types";
 
 export class CatalogModel {
   private _items: IProduct[] = [];
@@ -16,7 +16,7 @@ export class CatalogModel {
 
   // получение одного товара по его id
   getItem(id: string): IProduct | undefined {
-    return this._items.find(item => item.id === id);
+    return this._items.find((item) => item.id === id);
   }
 
   // сохранение товара для подробного отображения
