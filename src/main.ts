@@ -80,11 +80,6 @@ console.log("\n🛒 BasketModel.clear:");
 basketModel.clear();
 console.log("✅ После очистки товаров:", basketModel.getCount());
 
-// Проверка BuyerModel: validate с невалидными данными
-console.log("\n👤 BuyerModel.validate с невалидными данными:");
-const emptyBuyer = new BuyerModel();
-console.log("❌ Ошибки:", emptyBuyer.validate());
-
 // Проверка BuyerModel: clear
 console.log("\n👤 BuyerModel.clear:");
 buyerModel.clear();
