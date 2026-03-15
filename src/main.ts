@@ -6,6 +6,7 @@ import { Api } from './components/base/Api';
 import { apiProducts } from './utils/data';
 import { API_URL } from './utils/constants';
 import { IProductList } from './types'; // Импортируем интерфейс
+import { LarekAPI } from './components/API/LarekAPI';
 
 console.log('========== ПРОВЕРКА РАБОТЫ МОДЕЛЕЙ ДАННЫХ ==========');
 console.log('🌐 API_URL из constants.ts:', API_URL);
@@ -39,6 +40,7 @@ console.log('\n========== РАБОТА С СЕРВЕРОМ ==========');
 
 // Создаем экземпляр Api с URL из constants
 const apiBase = new Api(API_URL);
+const larekAPI = new LarekAPI(apiBase);
 
 // Функция для получения товаров с сервера
 async function loadProductsFromServer() {
@@ -46,17 +48,24 @@ async function loadProductsFromServer() {
         console.log('\n📡 Загружаем товары с сервера...');
         
         // Указываем тип IProductList для ответа от сервера
-        const response = await apiBase.get<IProductList>('/product');
-        
+       // const response = await apiBase.get<IProductList>('/product');
+        // Получаем товары с сервера
+       const productsFromServer = await larekAPI.getProductList();
+
         console.log('✅ Ответ от сервера получен!');
-        console.log('Всего товаров на сервере:', response.total); // Теперь total существует!
+        console.log('Всего товаров на сервере:', productsFromServer.length);
         
         // Сохраняем товары в модель каталога
-        if (response && response.items) {
-            catalogModel.setItems(response.items);
-            console.log('\n💾 Сохраняем товары в модель каталога...');
-            console.log('✅ Сохранено', catalogModel.getItems().length, 'товаров в модель');
-            
+       // if ( productsFromServer && productsFromServer.length) {
+         //   catalogModel.setItems(productsFromServer.length);
+           // console.log('\n💾 Сохраняем товары в модель каталога...');
+            //console.log('✅ Сохранено', catalogModel.getItems().length, 'товаров в модель');
+
+        // Сохраняем товары в модель каталога
+        catalogModel.setItems(productsFromServer);
+        console.log('\n💾 Сохраняем товары в модель каталога...');
+        console.log('✅ Сохранено', catalogModel.getItems().length, 'товаров в модель');
+ 
             // Показываем первые 3 товара для примера
             console.log('\n📋 Первые 3 товара из каталога:');
             catalogModel.getItems().slice(0, 3).forEach((item, index) => {
@@ -90,8 +99,14 @@ async function loadProductsFromServer() {
             console.log('\n✨ Все тесты успешно пройдены!');
         }
         
-    } catch (error) {
-        console.error('❌ Ошибка при загрузке с сервера:', error);
+     catch (error) {
+        console.error('Ошибка при загрузке с сервера:', error);
+        console.log('⚠️ Используем тестовые данные');
+           // Показываем тестовые данные как запасной вариант
+        console.log('\n📋 Тестовые товары:');
+        catalogModel.getItems().slice(0, 3).forEach((item, index) => {
+            console.log(`${index + 1}. ${item.title} - ${item.price ? item.price + ' ₽' : 'Бесценно'}`);
+        });
     }
 }
 
