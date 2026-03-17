@@ -29,11 +29,8 @@ export class BuyerModel {
   // получение всех данных покупателя
   getBuyerData(): IBuyer {
     // Проверяем, что все данные заполнены
-    if (!this.payment) {
-      throw new Error("Способ оплаты не выбран");
-    }
     return {
-      payment: this.payment!,
+      payment: this.payment,
       address: this.address,
       phone: this.phone,
       email: this.email,
@@ -64,7 +61,7 @@ export class BuyerModel {
     }
 
     // Проверяем email
-    if (!this.email || this.email.trim() === "") {
+   if (!this.address?.trim()) {
       errors.email = "Укажите email";
     }
 

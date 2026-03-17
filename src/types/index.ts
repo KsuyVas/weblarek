@@ -23,7 +23,7 @@ export type TPayment = "card" | "cash";
 
 // Интерфейс покупателя
 export interface IBuyer {
-  payment: TPayment;
+  payment: TPayment | null;
   email: string;
   phone: string;
   address: string;
@@ -47,12 +47,6 @@ export interface IOrderResult {
 // Интерфейс для ответа от сервера со списком товаров
 export interface IProductList {
   items: IProduct[];
-  total: number;
-}
-
-// Интерфейс для ответа от сервера при оформлении заказа
-export interface IOrderResult {
-  id: string;
   total: number;
 }
 
