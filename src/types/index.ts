@@ -29,6 +29,26 @@ export interface IBuyer {
   address: string;
 }
 
+
+//интрефейс для карточки базовый, возможно нужно будет удалить
+interface ICardActions {
+    onClick?: (event: MouseEvent) => void;
+}
+
+interface HeaderData {
+    counter: number;
+}
+
+interface IOrderForm {
+    payment: 'card' | 'cash' | null;
+    address: string;
+}
+
+interface IContactsForm {
+    email: string;
+    phone: string;
+}
+
 // Тип для ошибок валидации
 export type TFormErrors = Partial<Record<keyof IBuyer, string>>;
 
