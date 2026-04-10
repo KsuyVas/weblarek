@@ -118,3 +118,240 @@ async function loadProductsFromServer() {
 
 // Запускаем загрузку с сервера
 loadProductsFromServer();
+
+
+// ========== ТЕСТИРОВАНИЕ КОМПОНЕНТОВ VIEW ==========
+console.log('\n========== ТЕСТИРОВАНИЕ VIEW КОМПОНЕНТОВ ==========');
+
+import { Modal } from './components/View/Modal';
+import { Header } from './components/View/Header';
+import { Gallery } from './components/View/Gallery';
+import { CardCatalog } from './components/View/CardCatalog';
+import { CardPreview } from './components/View/CardPreview';
+import { CardBasket } from './components/View/CardBasket';
+import { Basket } from './components/View/Basket';
+import { OrderForm } from './components/View/OrderForm';
+import { ContactsForm } from './components/View/ContactsForm';
+import { Success } from './components/View/Success';
+import { EventEmitter } from './components/base/Events';
+
+// Создаём брокер событий для тестов
+const testEvents = new EventEmitter();
+
+// Подписываемся на все события для отладки
+testEvents.onAll((event) => {
+    console.log(`📡 [Событие] ${event.eventName}`, event.data);
+});
+
+// 1. ТЕСТ HEADER
+console.log('\n--- Тест 1: Header ---');
+const headerContainer = document.querySelector('.header');
+if (headerContainer) {
+    const header = new Header(headerContainer as HTMLElement, testEvents);
+    header.counter = 5;
+    console.log('✅ Header: счётчик установлен в 5');
+    header.render();
+    console.log('✅ Header: рендер выполнен');
+} else {
+    console.error('❌ Header: контейнер .header не найден');
+}
+
+// 2. ТЕСТ GALLERY
+console.log('\n--- Тест 2: Gallery ---');
+const galleryContainer = document.querySelector('.gallery');
+if (galleryContainer) {
+    const gallery = new Gallery(galleryContainer as HTMLElement);
+    
+    // Создаём тестовые карточки
+    const testCard = document.createElement('div');
+    testCard.textContent = 'Тестовая карточка';
+    testCard.style.border = '1px solid red';
+    testCard.style.padding = '10px';
+    
+    gallery.items = [testCard];
+    console.log('✅ Gallery: установлен 1 элемент');
+    
+    gallery.addItem(testCard);
+    console.log('✅ Gallery: добавлен ещё 1 элемент');
+    
+    console.log('✅ Gallery: рендер выполнен');
+} else {
+    console.error('❌ Gallery: контейнер .gallery не найден');
+}
+
+// 3. ТЕСТ MODAL
+console.log('\n--- Тест 3: Modal ---');
+const modalContainer = document.querySelector('#modal-container');
+if (modalContainer) {
+    const modal = new Modal(modalContainer as HTMLElement, testEvents);
+    
+    // Создаём тестовый контент
+    const testContent = document.createElement('div');
+    testContent.textContent = 'Тестовое содержимое модального окна';
+    testContent.style.padding = '20px';
+    
+    modal.content = testContent;
+    console.log('✅ Modal: контент установлен');
+    
+    modal.open();
+    console.log('✅ Modal: открыт (должно появиться модальное окно)');
+    
+    // Закроем через 2 секунды
+    setTimeout(() => {
+        modal.close();
+        console.log('✅ Modal: закрыт');
+    }, 2000);
+} else {
+    console.error('❌ Modal: контейнер #modal-container не найден');
+}
+
+// 4. ТЕСТ CARD CATALOG
+console.log('\n--- Тест 4: CardCatalog ---');
+const catalogTemplate = document.querySelector('#card-catalog') as HTMLTemplateElement;
+if (catalogTemplate) {
+    const cardElement = catalogTemplate.content.cloneNode(true) as HTMLElement;
+    const catalogCard = new CardCatalog(cardElement, {
+        onClick: () => console.log('📡 Клик по карточке каталога')
+    });
+    
+    catalogCard.title = 'Тестовый товар';
+    catalogCard.price = 1000;
+    catalogCard.category = 'софт-скил';
+    catalogCard.image = 'https://via.placeholder.com/150';
+    
+    console.log('✅ CardCatalog: карточка создана');
+    console.log('   Заголовок:', catalogCard.render().querySelector('.card__title')?.textContent);
+    console.log('   Цена:', catalogCard.render().querySelector('.card__price')?.textContent);
+    console.log('   Категория:', catalogCard.render().querySelector('.card__category')?.textContent);
+} else {
+    console.error('❌ CardCatalog: шаблон #card-catalog не найден');
+}
+
+// 5. ТЕСТ CARD PREVIEW
+console.log('\n--- Тест 5: CardPreview ---');
+const previewTemplate = document.querySelector('#card-preview') as HTMLTemplateElement;
+if (previewTemplate) {
+    const cardElement = previewTemplate.content.cloneNode(true) as HTMLElement;
+    const previewCard = new CardPreview(cardElement, {
+        onButtonClick: () => console.log('📡 Клик по кнопке в карточке превью')
+    });
+    
+    previewCard.title = 'Тестовый товар детально';
+    previewCard.price = 2500;
+    previewCard.category = 'хард-скил';
+    previewCard.image = 'https://via.placeholder.com/300';
+    previewCard.description = 'Это подробное описание тестового товара';
+    previewCard.buttonText = 'В корзину';
+    
+    console.log('✅ CardPreview: карточка создана');
+    console.log('   Заголовок:', previewCard.render().querySelector('.card__title')?.textContent);
+    console.log('   Описание:', previewCard.render().querySelector('.card__text')?.textContent);
+    console.log('   Кнопка:', previewCard.render().querySelector('.card__button')?.textContent);
+} else {
+    console.error('❌ CardPreview: шаблон #card-preview не найден');
+}
+
+// 6. ТЕСТ CARD BASKET
+console.log('\n--- Тест 6: CardBasket ---');
+const basketTemplate = document.querySelector('#card-basket') as HTMLTemplateElement;
+if (basketTemplate) {
+    const cardElement = basketTemplate.content.cloneNode(true) as HTMLElement;
+    const basketCard = new CardBasket(cardElement, {
+        onDeleteClick: () => console.log('📡 Клик по удалению из корзины')
+    });
+    
+    basketCard.title = 'Товар в корзине';
+    basketCard.price = 500;
+    basketCard.index = 1;
+    
+    console.log('✅ CardBasket: карточка создана');
+    console.log('   Заголовок:', basketCard.render().querySelector('.card__title')?.textContent);
+    console.log('   Индекс:', basketCard.render().querySelector('.basket__item-index')?.textContent);
+} else {
+    console.error('❌ CardBasket: шаблон #card-basket не найден');
+}
+
+// 7. ТЕСТ BASKET
+console.log('\n--- Тест 7: Basket ---');
+const basketTemplateComp = document.querySelector('#basket') as HTMLTemplateElement;
+if (basketTemplateComp) {
+    const basketElement = basketTemplateComp.content.cloneNode(true) as HTMLElement;
+    const basket = new Basket(basketElement, testEvents);
+    
+    // Создаём тестовые карточки для корзины
+    const testBasketCards: HTMLElement[] = [];
+    for (let i = 1; i <= 2; i++) {
+        const cardElement = basketTemplate.content.cloneNode(true) as HTMLElement;
+        const card = new CardBasket(cardElement);
+        card.title = `Товар ${i}`;
+        card.price = i * 1000;
+        card.index = i;
+        testBasketCards.push(card.render());
+    }
+    
+    basket.items = testBasketCards;
+    basket.totalPrice = 3000;
+    basket.buttonDisabled = false;
+    
+    console.log('✅ Basket: компонент создан');
+    console.log('   Товаров в корзине:', basketElement.querySelectorAll('.basket__item').length);
+    console.log('   Общая сумма:', basketElement.querySelector('.basket__price')?.textContent);
+    console.log('   Кнопка активна:', !basketElement.querySelector('.basket__button')?.hasAttribute('disabled'));
+} else {
+    console.error('❌ Basket: шаблон #basket не найден');
+}
+
+// 8. ТЕСТ ORDER FORM
+console.log('\n--- Тест 8: OrderForm ---');
+const orderTemplate = document.querySelector('#order') as HTMLTemplateElement;
+if (orderTemplate) {
+    const formElement = orderTemplate.content.cloneNode(true) as HTMLFormElement;
+    const orderForm = new OrderForm(formElement, testEvents);
+    
+    orderForm.payment = 'card';
+    orderForm.address = 'ул. Тестовая, д. 1';
+    orderForm.valid = true;
+    
+    console.log('✅ OrderForm: форма создана');
+    console.log('   Выбранный способ оплаты:', orderForm.payment);
+    console.log('   Адрес:', orderForm.address);
+    console.log('   Кнопка активна:', !formElement.querySelector('.order__button')?.hasAttribute('disabled'));
+} else {
+    console.error('❌ OrderForm: шаблон #order не найден');
+}
+
+// 9. ТЕСТ CONTACTS FORM
+console.log('\n--- Тест 9: ContactsForm ---');
+const contactsTemplate = document.querySelector('#contacts') as HTMLTemplateElement;
+if (contactsTemplate) {
+    const formElement = contactsTemplate.content.cloneNode(true) as HTMLFormElement;
+    const contactsForm = new ContactsForm(formElement, testEvents);
+    
+    contactsForm.email = 'test@example.com';
+    contactsForm.phone = '+7 (999) 123-45-67';
+    contactsForm.valid = true;
+    
+    console.log('✅ ContactsForm: форма создана');
+    console.log('   Email:', contactsForm.email);
+    console.log('   Телефон:', contactsForm.phone);
+    console.log('   Кнопка активна:', !formElement.querySelector('.button')?.hasAttribute('disabled'));
+} else {
+    console.error('❌ ContactsForm: шаблон #contacts не найден');
+}
+
+// 10. ТЕСТ SUCCESS
+console.log('\n--- Тест 10: Success ---');
+const successTemplate = document.querySelector('#success') as HTMLTemplateElement;
+if (successTemplate) {
+    const successElement = successTemplate.content.cloneNode(true) as HTMLElement;
+    const success = new Success(successElement, testEvents);
+    
+    success.total = 5000;
+    
+    console.log('✅ Success: компонент создан');
+    console.log('   Текст:', successElement.querySelector('.order-success__description')?.textContent);
+} else {
+    console.error('❌ Success: шаблон #success не найден');
+}
+
+console.log('\n========== ТЕСТИРОВАНИЕ ЗАВЕРШЕНО ==========');
