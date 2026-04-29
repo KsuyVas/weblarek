@@ -15,6 +15,7 @@ export class CardCatalog extends Card<IProduct> {
     
     set category(value: string) {
         this._category.textContent = value;
+        
         // Удаляем все существующие классы категории
         const classes = this._category.className.split(' ');
         classes.forEach(className => {
@@ -22,6 +23,7 @@ export class CardCatalog extends Card<IProduct> {
                 this._category.classList.remove(className);
             }
         });
+        
         // Добавляем новый класс из categoryMap
         const modifier = categoryMap[value as keyof typeof categoryMap];
         if (modifier) {

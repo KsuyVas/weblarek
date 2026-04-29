@@ -1,76 +1,92 @@
 import { IBuyer, TPayment, TFormErrors } from "../../types";
+import { IEvents } from "../base/Events";
 
 export class BuyerModel {
-  private payment: TPayment | null = null;
-  private address: string = "";
-  private phone: string = "";
-  private email: string = "";
+    private payment: TPayment | null = null;
+    private address: string = "";
+    private phone: string = "";
+    private email: string = "";
+    private events: IEvents;
 
-  // сохранение вида оплаты
-  setPayment(payment: TPayment): void {
-    this.payment = payment;
-  }
-
-  // сохранение адреса
-  setAddress(address: string): void {
-    this.address = address;
-  }
-
-  // сохранение телефона
-  setPhone(phone: string): void {
-    this.phone = phone;
-  }
-
-  // сохранение email
-  setEmail(email: string): void {
-    this.email = email;
-  }
-
-  // получение всех данных покупателя
-  getBuyerData(): IBuyer {
-    // Проверяем, что все данные заполнены
-    return {
-      payment: this.payment,
-      address: this.address,
-      phone: this.phone,
-      email: this.email,
-    };
-  }
-
-  // очистка данных покупателя
-  clear(): void {
-    this.payment = null;
-    this.address = "";
-    this.phone = "";
-    this.email = "";
-    //  this._errors = {};
-  }
-
-  // валидация данных. Возвращает объект с ошибками валидации
-  validate(): TFormErrors {
-    const errors: TFormErrors = {};
-
-    // Проверяем payment
-    if (!this.payment) {
-      errors.payment = "Не выбран вид оплаты";
+    constructor(events: IEvents) {
+        this.events = events;
     }
 
-    // Проверяем address
-    if (!this.address || this.address.trim() === "") {
-      errors.address = "Укажите адрес доставки";
+    setPayment(payment: TPayment): void {
+        this.payment = payment;
+        this.events.emit('buyer:paymentChanged', { payment });
+        this.emitValidation();
     }
 
-    // Проверяем email
-   if (!this.address?.trim()) {
-      errors.email = "Укажите email";
+    setAddress(address: string): void {
+        this.address = address;
+        this.events.emit('buyer:addressChanged', { address });
+        this.emitValidation();
     }
 
-    // Проверяем phone
-    if (!this.phone || this.phone.trim() === "") {
-      errors.phone = "Укажите телефон";
+    setPhone(phone: string): void {
+        this.phone = phone;
+        this.events.emit('buyer:phoneChanged', { phone });
+        this.emitValidation();
     }
 
-    // this._errors = errors;
-    return errors;
-  }
+    setEmail(email: string): void {
+        this.email = email;
+        this.events.emit('buyer:emailChanged', { email });
+        this.emitValidation();
+    }
+
+    getBuyerData(): IBuyer {
+        return {
+            payment: this.payment,
+            address: this.address,
+            phone: this.phone,
+            email: this.email,
+        };
+    }
+
+    clear(): void {
+        this.payment = null;
+        this.address = "";
+        this.phone = "";
+        this.email = "";
+        this.events.emit('buyer:cleared');
+        this.emitValidation();
+    }
+
+    private emitValidation(): void {
+        this.events.emit('buyer:validationChanged', { errors: this.getValidationErrors() });
+    }
+
+    getValidationErrors(): TFormErrors {
+        const errors: TFormErrors = {};
+
+        if (!this.payment) {
+            errors.payment = "Не выбран вид оплаты";
+        }
+
+        if (!this.address || this.address.trim() === "") {
+            errors.address = "Укажите адрес доставки";
+        }
+
+        if (!this.email || this.email.trim() === "") {
+            errors.email = "Укажите email";
+        }
+
+        if (!this.phone || this.phone.trim() === "") {
+            errors.phone = "Укажите телефон";
+        }
+
+        return errors;
+    }
+
+    isOrderStepValid(): boolean {
+        const errors = this.getValidationErrors();
+        return !errors.payment && !errors.address;
+    }
+
+    isContactsStepValid(): boolean {
+        const errors = this.getValidationErrors();
+        return !errors.email && !errors.phone;
+    }
 }

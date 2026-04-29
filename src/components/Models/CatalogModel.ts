@@ -1,31 +1,34 @@
 import { IProduct } from "../../types";
+import { IEvents } from "../base/Events";
 
 export class CatalogModel {
-  private _items: IProduct[] = [];
-  private _selectedItem: IProduct | null = null;
+    private _items: IProduct[] = [];
+    private _selectedItem: IProduct | null = null;
+    private events: IEvents;
 
-  // сохраняет массив товаров полученного в параметрах метода
-  setItems(items: IProduct[]): void {
-    this._items = items;
-  }
+    constructor(events: IEvents) {
+        this.events = events;
+    }
 
-  // получение массива товаров из модели
-  getItems(): IProduct[] {
-    return this._items;
-  }
+    setItems(items: IProduct[]): void {
+        this._items = items;
+        this.events.emit('catalog:changed', { items: this._items });
+    }
 
-  // получение одного товара по его id
-  getItem(id: string): IProduct | undefined {
-    return this._items.find((item) => item.id === id);
-  }
+    getItems(): IProduct[] {
+        return this._items;
+    }
 
-  // сохранение товара для подробного отображения
-  setSelectedItem(item: IProduct): void {
-    this._selectedItem = item;
-  }
+    getItem(id: string): IProduct | undefined {
+        return this._items.find((item) => item.id === id);
+    }
 
-  // получение товара для подробного отображения
-  getSelectedItem(): IProduct | null {
-    return this._selectedItem;
-  }
+    setSelectedItem(item: IProduct): void {
+        this._selectedItem = item;
+        this.events.emit('catalog:selectedChanged', { selectedItem: this._selectedItem });
+    }
+
+    getSelectedItem(): IProduct | null {
+        return this._selectedItem;
+    }
 }

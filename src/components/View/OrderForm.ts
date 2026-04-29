@@ -9,7 +9,6 @@ export interface IOrderFormData {
 export class OrderForm extends Form<IOrderFormData> {
     protected _paymentButtons: NodeListOf<HTMLButtonElement>;
     protected _addressInput: HTMLInputElement;
-    protected _selectedPayment: 'card' | 'cash' | null = null;
 
     constructor(container: HTMLFormElement, events: IEvents) {
         super(container, events);
@@ -17,35 +16,20 @@ export class OrderForm extends Form<IOrderFormData> {
         this._paymentButtons = container.querySelectorAll('.order__buttons button');
         this._addressInput = container.querySelector('input[name="address"]') as HTMLInputElement;
         
-        // Устанавливаем обработчики для кнопок оплаты
         this._paymentButtons.forEach(button => {
             button.addEventListener('click', () => {
                 const paymentType = button.getAttribute('name') as 'card' | 'cash';
-                this.payment = paymentType;
+                this.setPaymentVisual(paymentType);
                 this.onInputChange('payment', paymentType);
             });
         });
         
-        // Обработчик изменения адреса
         this._addressInput.addEventListener('input', () => {
             this.onInputChange('address', this._addressInput.value);
         });
     }
     
-    protected getFormName(): string {
-        return 'order';
-    }
-    
-    protected getData(): IOrderFormData {
-        return {
-            payment: this._selectedPayment,
-            address: this._addressInput.value
-        };
-    }
-    
-    set payment(value: 'card' | 'cash' | null) {
-        this._selectedPayment = value;
-        // Обновляем визуальное состояние кнопок
+    private setPaymentVisual(value: 'card' | 'cash'): void {
         this._paymentButtons.forEach(button => {
             const buttonType = button.getAttribute('name');
             if (value === buttonType) {
@@ -56,19 +40,48 @@ export class OrderForm extends Form<IOrderFormData> {
         });
     }
     
+    protected getFormName(): string {
+        return 'order';
+    }
+    
+    protected getData(): IOrderFormData {
+        return {
+            payment: this.getSelectedPayment(),
+            address: this._addressInput.value
+        };
+    }
+    
+    private getSelectedPayment(): 'card' | 'cash' | null {
+        let selected: 'card' | 'cash' | null = null;
+        this._paymentButtons.forEach(button => {
+            if (button.classList.contains('button_alt-active')) {
+                selected = button.getAttribute('name') as 'card' | 'cash';
+            }
+        });
+        return selected;
+    }
+    
+    set payment(value: 'card' | 'cash' | null) {
+        if (value) {
+            this.setPaymentVisual(value);
+        }
+    }
+    
     set address(value: string) {
         this._addressInput.value = value;
     }
     
     clear(): void {
-        this.payment = null;
+        this._paymentButtons.forEach(button => {
+            button.classList.remove('button_alt-active');
+        });
         this.address = '';
         super.clear();
     }
     
     render(data?: Partial<IOrderFormData>): HTMLElement {
         if (data) {
-            if (data.payment !== undefined) this.payment = data.payment;
+            if (data.payment) this.payment = data.payment;
             if (data.address !== undefined) this.address = data.address;
         }
         return super.render(data);

@@ -23,7 +23,6 @@ export abstract class Form<T extends object> extends Component<T> {
         });
     }
     
-    // Абстрактные методы — должны быть реализованы в дочерних классах
     protected abstract getFormName(): string;
     protected abstract getData(): T;
     
@@ -50,9 +49,6 @@ export abstract class Form<T extends object> extends Component<T> {
     }
     
     render(data?: Partial<T>): HTMLElement {
-        if (data) {
-            // В дочерних классах можно переопределить для установки данных
-        }
         return this.container;
     }
 }
