@@ -1,4 +1,4 @@
-import { Form } from './Form';
+import { Component } from '../base/Component';
 import { IEvents } from '../base/Events';
 
 export interface IContactsFormData {
@@ -6,34 +6,34 @@ export interface IContactsFormData {
     phone: string;
 }
 
-export class ContactsForm extends Form<IContactsFormData> {
+export class ContactsForm extends Component<IContactsFormData> {
     protected _emailInput: HTMLInputElement;
     protected _phoneInput: HTMLInputElement;
+    protected _errorsElement: HTMLElement;
+    protected _submitButton: HTMLButtonElement;
+    protected events: IEvents;
 
     constructor(container: HTMLFormElement, events: IEvents) {
-        super(container, events);
+        super(container);
+        this.events = events;
         
         this._emailInput = container.querySelector('input[name="email"]') as HTMLInputElement;
         this._phoneInput = container.querySelector('input[name="phone"]') as HTMLInputElement;
+        this._errorsElement = container.querySelector('.form__errors') as HTMLElement;
+        this._submitButton = container.querySelector('button[type="submit"]') as HTMLButtonElement;
         
         this._emailInput.addEventListener('input', () => {
-            this.onInputChange('email', this._emailInput.value);
+            this.events.emit('contacts.emailChange', { email: this._emailInput.value });
         });
         
         this._phoneInput.addEventListener('input', () => {
-            this.onInputChange('phone', this._phoneInput.value);
+            this.events.emit('contacts.phoneChange', { phone: this._phoneInput.value });
         });
-    }
-    
-    protected getFormName(): string {
-        return 'contacts';
-    }
-    
-    protected getData(): IContactsFormData {
-        return {
-            email: this._emailInput.value,
-            phone: this._phoneInput.value
-        };
+        
+        this.container.addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.events.emit('contacts.submit');
+        });
     }
     
     set email(value: string) {
@@ -44,17 +44,15 @@ export class ContactsForm extends Form<IContactsFormData> {
         this._phoneInput.value = value;
     }
     
-    clear(): void {
-        this.email = '';
-        this.phone = '';
-        super.clear();
+    set valid(value: boolean) {
+        if (this._submitButton) {
+            this._submitButton.disabled = !value;
+        }
     }
     
-    render(data?: Partial<IContactsFormData>): HTMLElement {
-        if (data) {
-            if (data.email !== undefined) this.email = data.email;
-            if (data.phone !== undefined) this.phone = data.phone;
+    set errors(value: string) {
+        if (this._errorsElement) {
+            this._errorsElement.textContent = value;
         }
-        return super.render(data);
     }
 }

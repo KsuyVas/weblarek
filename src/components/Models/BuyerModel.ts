@@ -14,26 +14,22 @@ export class BuyerModel {
 
     setPayment(payment: TPayment): void {
         this.payment = payment;
-        this.events.emit('buyer:paymentChanged', { payment });
-        this.emitValidation();
+        this.events.emit('buyer:changed');
     }
 
     setAddress(address: string): void {
         this.address = address;
-        this.events.emit('buyer:addressChanged', { address });
-        this.emitValidation();
+        this.events.emit('buyer:changed');
     }
 
     setPhone(phone: string): void {
         this.phone = phone;
-        this.events.emit('buyer:phoneChanged', { phone });
-        this.emitValidation();
+        this.events.emit('buyer:changed');
     }
 
     setEmail(email: string): void {
         this.email = email;
-        this.events.emit('buyer:emailChanged', { email });
-        this.emitValidation();
+        this.events.emit('buyer:changed');
     }
 
     getBuyerData(): IBuyer {
@@ -50,15 +46,10 @@ export class BuyerModel {
         this.address = "";
         this.phone = "";
         this.email = "";
-        this.events.emit('buyer:cleared');
-        this.emitValidation();
+        this.events.emit('buyer:changed');
     }
 
-    private emitValidation(): void {
-        this.events.emit('buyer:validationChanged', { errors: this.getValidationErrors() });
-    }
-
-    getValidationErrors(): TFormErrors {
+    validate(): TFormErrors {
         const errors: TFormErrors = {};
 
         if (!this.payment) {
@@ -78,15 +69,5 @@ export class BuyerModel {
         }
 
         return errors;
-    }
-
-    isOrderStepValid(): boolean {
-        const errors = this.getValidationErrors();
-        return !errors.payment && !errors.address;
-    }
-
-    isContactsStepValid(): boolean {
-        const errors = this.getValidationErrors();
-        return !errors.email && !errors.phone;
     }
 }

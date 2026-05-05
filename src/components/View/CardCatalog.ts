@@ -7,10 +7,14 @@ export class CardCatalog extends Card<IProduct> {
     protected _image: HTMLImageElement;
 
     constructor(container: HTMLElement, actions?: { onClick: (event: MouseEvent) => void }) {
-        super(container, actions);
+        super(container);
         
         this._category = container.querySelector('.card__category') as HTMLElement;
         this._image = container.querySelector('.card__image') as HTMLImageElement;
+        
+        if (actions?.onClick) {
+            container.addEventListener('click', actions.onClick);
+        }
     }
     
     set category(value: string) {
@@ -35,11 +39,4 @@ export class CardCatalog extends Card<IProduct> {
         this.setImage(this._image, value, this._title.textContent || 'Товар');
     }
     
-    render(data?: Partial<IProduct>): HTMLElement {
-        if (data) {
-            if (data.category) this.category = data.category;
-            if (data.image) this.image = data.image;
-        }
-        return super.render(data);
-    }
 }

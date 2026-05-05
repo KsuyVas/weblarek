@@ -12,7 +12,8 @@ export class CatalogModel {
 
     setItems(items: IProduct[]): void {
         this._items = items;
-        this.events.emit('catalog:changed', { items: this._items });
+        // Только одно событие — факт изменения каталога
+        this.events.emit('catalog:changed');
     }
 
     getItems(): IProduct[] {
@@ -25,7 +26,8 @@ export class CatalogModel {
 
     setSelectedItem(item: IProduct): void {
         this._selectedItem = item;
-        this.events.emit('catalog:selectedChanged', { selectedItem: this._selectedItem });
+        // Только одно событие — факт изменения выбранного товара
+        this.events.emit('catalog:selectedChanged');
     }
 
     getSelectedItem(): IProduct | null {

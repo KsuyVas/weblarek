@@ -26,10 +26,4 @@ export class Success extends Component<SuccessData> {
         this._total.textContent = `Списано ${value} синапсов`;
     }
     
-    render(data?: Partial<SuccessData>): HTMLElement {
-        if (data?.total !== undefined) {
-            this.total = data.total;
-        }
-        return this.container;
-    }
-}
+   }

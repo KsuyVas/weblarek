@@ -26,10 +26,4 @@ export class Header extends Component<HeaderData> {
         this._counterElement.textContent = String(value);
     }
     
-    render(data?: Partial<HeaderData>): HTMLElement {
-        if (data?.counter !== undefined) {
-            this.counter = data.counter;
-        }
-        return this.container;
-    }
 }

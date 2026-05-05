@@ -16,9 +16,8 @@ export class BasketModel {
     addItem(item: IProduct): void {
         if (!this.contains(item.id)) {
             this._items.push(item);
-            this.events.emit('basket:changed', { items: this._items });
-            this.events.emit('basket:countChanged', { count: this.getCount() });
-            this.events.emit('basket:totalChanged', { total: this.getTotalPrice() });
+            // Только одно событие — факт изменения корзины
+            this.events.emit('basket:changed');
         }
     }
 
@@ -26,19 +25,15 @@ export class BasketModel {
         const removedItem = this._items.find(item => item.id === itemId);
         this._items = this._items.filter((item) => item.id !== itemId);
         if (removedItem) {
-            this.events.emit('basket:changed', { items: this._items });
-            this.events.emit('basket:countChanged', { count: this.getCount() });
-            this.events.emit('basket:totalChanged', { total: this.getTotalPrice() });
-            this.events.emit('basket:itemRemoved', { id: itemId });
+            // Только одно событие — факт изменения корзины
+            this.events.emit('basket:changed');
         }
     }
 
     clear(): void {
         this._items = [];
-        this.events.emit('basket:changed', { items: this._items });
-        this.events.emit('basket:countChanged', { count: this.getCount() });
-        this.events.emit('basket:totalChanged', { total: this.getTotalPrice() });
-        this.events.emit('basket:cleared');
+        // Только одно событие — факт изменения корзины
+        this.events.emit('basket:changed');
     }
 
     getTotalPrice(): number {

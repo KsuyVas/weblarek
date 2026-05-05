@@ -27,14 +27,8 @@ export class Basket extends Component<BasketData> {
     }
     
     set items(items: HTMLElement[]) {
-        if (items.length === 0) {
-            this._list.innerHTML = '<p class="basket__empty">Корзина пуста</p>';
-        } else {
-            this._list.innerHTML = '';
-            items.forEach(item => {
-                this._list.appendChild(item);
-            });
-        }
+        // Очищаем и добавляем новые элементы без создания дополнительной разметки
+        this._list.replaceChildren(...items);
     }
     
     set totalPrice(value: number) {
@@ -45,12 +39,4 @@ export class Basket extends Component<BasketData> {
         this._orderButton.disabled = value;
     }
     
-    render(data?: Partial<BasketData>): HTMLElement {
-        if (data) {
-            if (data.items) this.items = data.items;
-            if (data.totalPrice !== undefined) this.totalPrice = data.totalPrice;
-            if (data.buttonDisabled !== undefined) this.buttonDisabled = data.buttonDisabled;
-        }
-        return this.container;
-    }
 }

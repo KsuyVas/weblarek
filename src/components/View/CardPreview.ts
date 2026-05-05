@@ -2,11 +2,17 @@ import { Card } from './Card';
 import { IProduct } from '../../types';
 import { categoryMap } from '../../utils/constants';
 
+// Интерфейс для данных карточки превью
+export interface ICardPreviewData extends IProduct {
+    buttonText?: string;
+    disabled?: boolean;
+}
+
 export interface ICardPreviewActions {
     onButtonClick?: (event: MouseEvent) => void;
 }
 
-export class CardPreview extends Card<IProduct> {
+export class CardPreview extends Card<ICardPreviewData> {
     protected _category: HTMLElement;
     protected _image: HTMLImageElement;
     protected _description: HTMLElement;
@@ -27,14 +33,14 @@ export class CardPreview extends Card<IProduct> {
     
     set category(value: string) {
         this._category.textContent = value;
-        // Удаляем все существующие классы категории
+        
         const classes = this._category.className.split(' ');
         classes.forEach(className => {
             if (className.startsWith('card__category_')) {
                 this._category.classList.remove(className);
             }
         });
-        // Добавляем новый класс из categoryMap
+        
         const modifier = categoryMap[value as keyof typeof categoryMap];
         if (modifier) {
             this._category.classList.add(modifier);
@@ -42,8 +48,7 @@ export class CardPreview extends Card<IProduct> {
     }
     
     set image(value: string) {
-        this._image.src = value;
-        this._image.alt = this._title.textContent || 'Товар';
+        this.setImage(this._image, value, this._title.textContent || 'Товар');
     }
     
     set description(value: string) {
@@ -56,16 +61,5 @@ export class CardPreview extends Card<IProduct> {
     
     set disabled(value: boolean) {
         this._button.disabled = value;
-    }
-    
-    render(data?: Partial<IProduct> & { buttonText?: string, disabled?: boolean }): HTMLElement {
-        if (data) {
-            if (data.category) this.category = data.category;
-            if (data.image) this.image = data.image;
-            if (data.description) this.description = data.description;
-            if (data.buttonText !== undefined) this.buttonText = data.buttonText;
-            if (data.disabled !== undefined) this.disabled = data.disabled;
-        }
-        return super.render(data);
     }
 }

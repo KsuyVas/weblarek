@@ -5,7 +5,11 @@ export interface ICardBasketActions {
     onDeleteClick?: (event: MouseEvent) => void;
 }
 
-export class CardBasket extends Card<IProduct> {
+export interface ICardBasketData extends IProduct {
+    index: number;
+}
+
+export class CardBasket extends Card<ICardBasketData> {
     protected _index: HTMLElement;
     protected _deleteButton: HTMLButtonElement;
 
@@ -24,10 +28,4 @@ export class CardBasket extends Card<IProduct> {
         this._index.textContent = String(value);
     }
     
-    render(data?: Partial<IProduct> & { index?: number }): HTMLElement {
-        if (data?.index !== undefined) {
-            this.index = data.index;
-        }
-        return super.render(data);
-    }
 }

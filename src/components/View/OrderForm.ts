@@ -1,4 +1,4 @@
-import { Form } from './Form';
+import { Component } from '../base/Component';
 import { IEvents } from '../base/Events';
 
 export interface IOrderFormData {
@@ -6,30 +6,42 @@ export interface IOrderFormData {
     address: string;
 }
 
-export class OrderForm extends Form<IOrderFormData> {
+export class OrderForm extends Component<IOrderFormData> {
     protected _paymentButtons: NodeListOf<HTMLButtonElement>;
     protected _addressInput: HTMLInputElement;
+    protected _errorsElement: HTMLElement;
+    protected _submitButton: HTMLButtonElement;
+    protected events: IEvents;
 
     constructor(container: HTMLFormElement, events: IEvents) {
-        super(container, events);
+        super(container);
+        this.events = events;
         
         this._paymentButtons = container.querySelectorAll('.order__buttons button');
         this._addressInput = container.querySelector('input[name="address"]') as HTMLInputElement;
+        this._errorsElement = container.querySelector('.form__errors') as HTMLElement;
+        this._submitButton = container.querySelector('.order__button') as HTMLButtonElement;
         
+        // Только генерация событий, без изменения внешнего вида
         this._paymentButtons.forEach(button => {
             button.addEventListener('click', () => {
                 const paymentType = button.getAttribute('name') as 'card' | 'cash';
-                this.setPaymentVisual(paymentType);
-                this.onInputChange('payment', paymentType);
+                this.events.emit('order.paymentChange', { payment: paymentType });
             });
         });
         
         this._addressInput.addEventListener('input', () => {
-            this.onInputChange('address', this._addressInput.value);
+            this.events.emit('order.addressChange', { address: this._addressInput.value });
+        });
+        
+        this.container.addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.events.emit('order.submit');
         });
     }
     
-    private setPaymentVisual(value: 'card' | 'cash'): void {
+    // Сеттеры для обновления отображения (вызываются презентером после изменения модели)
+    set payment(value: 'card' | 'cash' | null) {
         this._paymentButtons.forEach(button => {
             const buttonType = button.getAttribute('name');
             if (value === buttonType) {
@@ -40,50 +52,19 @@ export class OrderForm extends Form<IOrderFormData> {
         });
     }
     
-    protected getFormName(): string {
-        return 'order';
-    }
-    
-    protected getData(): IOrderFormData {
-        return {
-            payment: this.getSelectedPayment(),
-            address: this._addressInput.value
-        };
-    }
-    
-    private getSelectedPayment(): 'card' | 'cash' | null {
-        let selected: 'card' | 'cash' | null = null;
-        this._paymentButtons.forEach(button => {
-            if (button.classList.contains('button_alt-active')) {
-                selected = button.getAttribute('name') as 'card' | 'cash';
-            }
-        });
-        return selected;
-    }
-    
-    set payment(value: 'card' | 'cash' | null) {
-        if (value) {
-            this.setPaymentVisual(value);
-        }
-    }
-    
     set address(value: string) {
         this._addressInput.value = value;
     }
     
-    clear(): void {
-        this._paymentButtons.forEach(button => {
-            button.classList.remove('button_alt-active');
-        });
-        this.address = '';
-        super.clear();
+    set valid(value: boolean) {
+        if (this._submitButton) {
+            this._submitButton.disabled = !value;
+        }
     }
     
-    render(data?: Partial<IOrderFormData>): HTMLElement {
-        if (data) {
-            if (data.payment) this.payment = data.payment;
-            if (data.address !== undefined) this.address = data.address;
+    set errors(value: string) {
+        if (this._errorsElement) {
+            this._errorsElement.textContent = value;
         }
-        return super.render(data);
     }
 }
