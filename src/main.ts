@@ -23,7 +23,7 @@ import { Success } from "./components/View/Success";
 // Типы
 import { IProduct, IOrder } from "./types";
 
-// ========== ИНИЦИАЛИЗАЦИЯ ==========
+// ИНИЦИАЛИЗАЦИЯ
 console.log("🚀 Запуск приложения Web-Larёk");
 
 // Создаём брокер событий
@@ -38,12 +38,12 @@ const catalogModel = new CatalogModel(events);
 const basketModel = new BasketModel(events);
 const buyerModel = new BuyerModel(events);
 
-// ========== ПОИСК DOM-ЭЛЕМЕНТОВ (через ensureElement) ==========
+//ПОИСК DOM-ЭЛЕМЕНТОВ (через ensureElement)
 const modalContainer = ensureElement<HTMLElement>('#modal-container');
 const headerContainer = ensureElement<HTMLElement>('.header');
 const galleryContainer = ensureElement<HTMLElement>('.gallery');
 
-// Шаблоны
+
 const catalogCardTemplate = ensureElement<HTMLTemplateElement>('#card-catalog');
 const basketCardTemplate = ensureElement<HTMLTemplateElement>('#card-basket');
 const previewTemplate = ensureElement<HTMLTemplateElement>('#card-preview');
@@ -52,7 +52,7 @@ const orderTemplate = ensureElement<HTMLTemplateElement>('#order');
 const contactsTemplate = ensureElement<HTMLTemplateElement>('#contacts');
 const successTemplate = ensureElement<HTMLTemplateElement>('#success');
 
-// ========== СОЗДАНИЕ ЭКЗЕМПЛЯРОВ КОМПОНЕНТОВ (один раз) ==========
+//СОЗДАНИЕ ЭКЗЕМПЛЯРОВ КОМПОНЕНТОВ
 const modal = new Modal(modalContainer);
 const header = new Header(headerContainer, events);
 const gallery = new Gallery(galleryContainer);
@@ -61,16 +61,16 @@ const orderForm = new OrderForm(cloneTemplate(orderTemplate), events);
 const contactsForm = new ContactsForm(cloneTemplate(contactsTemplate), events);
 const success = new Success(cloneTemplate(successTemplate), events);
 
-// ========== ПЕРЕМЕННЫЕ ДЛЯ ХРАНЕНИЯ ДАННЫХ ==========
+//ПЕРЕМЕННЫЕ ДЛЯ ХРАНЕНИЯ ДАННЫХ
 let currentProduct: IProduct | null = null;
 
-// ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
+//ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
 
 function getImageUrl(imagePath: string): string {
     return CDN_URL + imagePath;
 }
 
-// Функции валидации (логика презентера)
+// Функции валидации
 function isOrderStepValid(): boolean {
     const errors = buyerModel.validate();
     return !errors.payment && !errors.address;
@@ -81,7 +81,7 @@ function isContactsStepValid(): boolean {
     return !errors.email && !errors.phone;
 }
 
-// ========== ОТРИСОВКА КОМПОНЕНТОВ (по событиям от модели) ==========
+// ОТРИСОВКА КОМПОНЕНТОВ
 
 // Отрисовка каталога
 function renderCatalog() {
@@ -135,7 +135,6 @@ function renderBasket() {
 }
 
 // Отрисовка превью товара
-// Отрисовка превью товара
 function renderPreview() {
     if (!currentProduct) return;
     
@@ -162,7 +161,7 @@ function renderPreview() {
         }
     });
     
-    // Теперь buttonText и disabled есть в интерфейсе ICardPreviewData
+    
     preview.render({
         title: currentProduct.title,
         price: currentProduct.price,
@@ -176,7 +175,7 @@ function renderPreview() {
     modal.content = previewElement;
 }
 
-// Отрисовка формы заказа (шаг 1)
+// Отрисовка формы заказа 
 function renderOrderForm() {
     const buyerData = buyerModel.getBuyerData();
     const errors = buyerModel.validate();
@@ -189,7 +188,7 @@ function renderOrderForm() {
     orderForm.errors = errors.payment || errors.address || '';
 }
 
-// Отрисовка формы контактов (шаг 2)
+// Отрисовка формы контактов 
 function renderContactsForm() {
     const buyerData = buyerModel.getBuyerData();
     const errors = buyerModel.validate();
@@ -202,9 +201,9 @@ function renderContactsForm() {
     contactsForm.errors = errors.email || errors.phone || '';
 }
 
-// ========== НАСТРОЙКА ОБРАБОТЧИКОВ СОБЫТИЙ ==========
+// НАСТРОЙКА ОБРАБОТЧИКОВ СОБЫТИЙ 
 
-// ----- События от моделей данных -----
+// События от моделей данных
 events.on('catalog:changed', () => {
     renderCatalog();
 });
@@ -223,7 +222,7 @@ events.on('buyer:changed', () => {
     renderContactsForm();
 });
 
-// ----- События от представлений -----
+//События от представлений
 
 // Выбор карточки в каталоге
 events.on('card:select', ({ id }: { id: string }) => {
@@ -235,7 +234,7 @@ events.on('card:select', ({ id }: { id: string }) => {
     }
 });
 
-// Клик по кнопке в превью (добавление/удаление из корзины)
+// Клик по кнопке в превью
 events.on('preview:buttonClick', ({ id }: { id: string }) => {
     const product = catalogModel.getItem(id);
     if (!product) return;
@@ -277,7 +276,7 @@ events.on('order.addressChange', ({ address }: { address: string }) => {
     buyerModel.setAddress(address);
 });
 
-// Отправка формы заказа (шаг 1)
+// Отправка формы заказа 
 events.on('order.submit', () => {
     if (isOrderStepValid()) {
         modal.content = contactsForm.getContainer();
@@ -294,7 +293,7 @@ events.on('contacts.phoneChange', ({ phone }: { phone: string }) => {
     buyerModel.setPhone(phone);
 });
 
-// Отправка заказа (шаг 2)
+// Отправка заказа
 events.on('contacts.submit', async () => {
     if (!isContactsStepValid() || basketModel.getCount() === 0) return;
     
@@ -325,7 +324,7 @@ events.on('success:close', () => {
     modal.close();
 });
 
-// ========== ЗАГРУЗКА ТОВАРОВ ==========
+// ЗАГРУЗКА ТОВАРОВ
 async function loadProducts() {
     try {
         const products = await api.getProductList();
