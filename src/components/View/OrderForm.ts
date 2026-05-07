@@ -1,4 +1,4 @@
-import { Component } from '../base/Component';
+import { Form } from './Form';
 import { IEvents } from '../base/Events';
 
 export interface IOrderFormData {
@@ -6,23 +6,16 @@ export interface IOrderFormData {
     address: string;
 }
 
-export class OrderForm extends Component<IOrderFormData> {
+export class OrderForm extends Form<IOrderFormData> {
     protected _paymentButtons: NodeListOf<HTMLButtonElement>;
     protected _addressInput: HTMLInputElement;
-    protected _errorsElement: HTMLElement;
-    protected _submitButton: HTMLButtonElement;
-    protected events: IEvents;
 
     constructor(container: HTMLFormElement, events: IEvents) {
-        super(container);
-        this.events = events;
+        super(container, events);
         
         this._paymentButtons = container.querySelectorAll('.order__buttons button');
         this._addressInput = container.querySelector('input[name="address"]') as HTMLInputElement;
-        this._errorsElement = container.querySelector('.form__errors') as HTMLElement;
-        this._submitButton = container.querySelector('.order__button') as HTMLButtonElement;
         
-        // Только генерация событий, без изменения внешнего вида
         this._paymentButtons.forEach(button => {
             button.addEventListener('click', () => {
                 const paymentType = button.getAttribute('name') as 'card' | 'cash';
@@ -40,7 +33,7 @@ export class OrderForm extends Component<IOrderFormData> {
         });
     }
     
-    // Сеттеры для обновления отображения (вызываются презентером после изменения модели)
+
     set payment(value: 'card' | 'cash' | null) {
         this._paymentButtons.forEach(button => {
             const buttonType = button.getAttribute('name');
@@ -56,15 +49,12 @@ export class OrderForm extends Component<IOrderFormData> {
         this._addressInput.value = value;
     }
     
-    set valid(value: boolean) {
-        if (this._submitButton) {
-            this._submitButton.disabled = !value;
-        }
-    }
-    
-    set errors(value: string) {
-        if (this._errorsElement) {
-            this._errorsElement.textContent = value;
-        }
+    // clear() наследуется из Form, переопределяем для специфичной очистки
+    clear(): void {
+        this._paymentButtons.forEach(button => {
+            button.classList.remove('button_alt-active');
+        });
+        this.address = '';
+        super.clear();
     }
 }

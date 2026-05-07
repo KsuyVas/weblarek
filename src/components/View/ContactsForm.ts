@@ -1,4 +1,4 @@
-import { Component } from '../base/Component';
+import { Form } from './Form';
 import { IEvents } from '../base/Events';
 
 export interface IContactsFormData {
@@ -6,21 +6,15 @@ export interface IContactsFormData {
     phone: string;
 }
 
-export class ContactsForm extends Component<IContactsFormData> {
+export class ContactsForm extends Form<IContactsFormData> {
     protected _emailInput: HTMLInputElement;
     protected _phoneInput: HTMLInputElement;
-    protected _errorsElement: HTMLElement;
-    protected _submitButton: HTMLButtonElement;
-    protected events: IEvents;
 
     constructor(container: HTMLFormElement, events: IEvents) {
-        super(container);
-        this.events = events;
+        super(container, events);
         
         this._emailInput = container.querySelector('input[name="email"]') as HTMLInputElement;
         this._phoneInput = container.querySelector('input[name="phone"]') as HTMLInputElement;
-        this._errorsElement = container.querySelector('.form__errors') as HTMLElement;
-        this._submitButton = container.querySelector('button[type="submit"]') as HTMLButtonElement;
         
         this._emailInput.addEventListener('input', () => {
             this.events.emit('contacts.emailChange', { email: this._emailInput.value });
@@ -36,6 +30,7 @@ export class ContactsForm extends Component<IContactsFormData> {
         });
     }
     
+
     set email(value: string) {
         this._emailInput.value = value;
     }
@@ -44,15 +39,10 @@ export class ContactsForm extends Component<IContactsFormData> {
         this._phoneInput.value = value;
     }
     
-    set valid(value: boolean) {
-        if (this._submitButton) {
-            this._submitButton.disabled = !value;
-        }
-    }
-    
-    set errors(value: string) {
-        if (this._errorsElement) {
-            this._errorsElement.textContent = value;
-        }
+    // clear() наследуется из Form, переопределяем для специфичной очистки
+    clear(): void {
+        this.email = '';
+        this.phone = '';
+        super.clear();
     }
 }

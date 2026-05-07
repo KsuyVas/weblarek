@@ -9,14 +9,8 @@ export class Gallery extends Component<{}> {
     }
     
     set items(items: HTMLElement[]) {
-        this._container.innerHTML = '';
-        items.forEach(item => {
-            this. _container.replaceChildren(...items);
-        });
+        this._container.replaceChildren(...items);
     }
     
-    addItem(item: HTMLElement): void {
-        this._container.appendChild(item);
-    }
-        
+      
 }
